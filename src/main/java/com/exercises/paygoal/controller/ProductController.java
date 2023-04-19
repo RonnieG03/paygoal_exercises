@@ -6,6 +6,7 @@ import com.exercises.paygoal.service.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +29,16 @@ public class ProductController {
     public ResponseEntity<List<Product>> list(){
         LOGGER.info("Get product list");
         return ResponseEntity.ok(productService.findAll());
+    }
+    @GetMapping("/priceAsc")
+    public ResponseEntity<List<Product>> listProductPriceAsc(){
+        LOGGER.info("Get product list Order price Asc");
+        return ResponseEntity.ok(productService.getAllProductOrderByPriceAsc());
+    }
+    @GetMapping("/priceDesc")
+    public ResponseEntity<List<Product>> listProductPriceDesc() {
+        LOGGER.info("Get product list Order price Desc");
+        return ResponseEntity.ok(productService.getAllProductOrderByPriceDesc());
     }
 
     @GetMapping("/{id}")

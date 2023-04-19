@@ -1,7 +1,9 @@
 package com.exercises.paygoal.model;
 
-import jakarta.persistence.*;
+
 import lombok.Data;
+
+import javax.persistence.*;
 
 @Entity
 @Data

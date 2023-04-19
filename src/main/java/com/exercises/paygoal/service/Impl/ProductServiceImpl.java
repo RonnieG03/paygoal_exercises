@@ -4,8 +4,10 @@ import com.exercises.paygoal.model.Product;
 import com.exercises.paygoal.repository.ProductRepository;
 import com.exercises.paygoal.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +16,11 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     ProductRepository productRepository;
     @Override
-    public Product save(Product product) {
+    public Product save(Product product){
+        Product existingProduct = productRepository.findProductByName(product.getName());
+        if (existingProduct != null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "product name already exists");
+        }
         return productRepository.save(product);
     }
 
@@ -25,7 +31,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Optional<Product> getProductByName(String name) {
-        return Optional.empty();
+        return Optional.ofNullable(productRepository.findProductByName(name));
     }
 
     @Override
@@ -40,7 +46,17 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> findAll() {
-        return productRepository.findAll(Sort.by(Sort.Direction.ASC, "price"));
+        return productRepository.findAll();
+    }
+
+    @Override
+    public List<Product> getAllProductOrderByPriceAsc() {
+        return productRepository.findAllByOrderByPriceAsc();
+    }
+
+    @Override
+    public List<Product> getAllProductOrderByPriceDesc() {
+        return productRepository.findAllByOrderByPriceDesc();
     }
 
     @Override
