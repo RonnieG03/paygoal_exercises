@@ -53,30 +53,26 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<Product> update(@RequestBody Product product, @PathVariable UUID id) {
         LOGGER.info("Update product{}",product);
-        Optional<Product> productOptional = productService.getProductById(id);
-        return productOptional
-                .map(theProduct -> {
-                    theProduct.setName(product.getName());
-                    theProduct.setDescription(product.getDescription());
-                    theProduct.setPrice(product.getPrice());
-                    theProduct.setQuantity(product.getQuantity());
-                    return ResponseEntity.ok(productService.update(theProduct));
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Optional<Product> optionalProduct = productService.getProductById(id);
+        if(optionalProduct.isPresent()){
+            return ResponseEntity.ok(productService.update(id, product));
+        }else{
+            return ResponseEntity.notFound().build();
+             } 
     }
-
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Product> delete(@PathVariable UUID id){
         LOGGER.info("Delete product{}",id);
-        Optional<Product> productOptional = productService.getProductById(id);
-        return productOptional
-                .map(product -> {
-                    productService.delete(product.getId());
-                    return ResponseEntity.ok(product);
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-
+        Optional<Product> optionalProduct = productService.getProductById(id);
+        if(optionalProduct.isPresent()){
+            productService.delete(id);
+            return ResponseEntity.noContent().build(); 
+        }else{
+            return ResponseEntity.notFound().build();
+             }
     }
+
     @PostMapping("save/list")
     public ResponseEntity<List<Product>> saveList(@RequestBody List<Product> products){
         LOGGER.info("Create new product List{}",products);

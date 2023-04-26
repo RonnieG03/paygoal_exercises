@@ -2,12 +2,14 @@ package com.exercises.paygoal.model;
 
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 import javax.persistence.*;
 
 @Entity
+@NoArgsConstructor
 @Data
 @Table(name = "products")
 public class Product {
