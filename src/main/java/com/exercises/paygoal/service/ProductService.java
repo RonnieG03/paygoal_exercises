@@ -4,13 +4,14 @@ import com.exercises.paygoal.model.Product;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ProductService {
     Product save(Product product);
-    Optional<Product> getProductById(Long id);
+    Optional<Product> getProductById(UUID id);
     Optional<Product> getProductByName(String name);
     Product update (Product product);
-    void delete(Long id);
+    void delete(UUID id);
     List<Product> findAll();
     List<Product> getAllProductOrderByPriceAsc();
     List<Product> getAllProductOrderByPriceDesc();

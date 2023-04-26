@@ -6,12 +6,12 @@ import com.exercises.paygoal.service.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/products")
@@ -42,7 +42,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+    public ResponseEntity<Product> getProductById(@PathVariable UUID id) {
         LOGGER.info("get product by id{}", id);
         Optional<Product> productOptional = productService.getProductById(id);
         return productOptional
@@ -51,7 +51,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@RequestBody Product product, @PathVariable Long id) {
+    public ResponseEntity<Product> update(@RequestBody Product product, @PathVariable UUID id) {
         LOGGER.info("Update product{}",product);
         Optional<Product> productOptional = productService.getProductById(id);
         return productOptional
@@ -66,7 +66,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Product> delete(@PathVariable Long id){
+    public ResponseEntity<Product> delete(@PathVariable UUID id){
         LOGGER.info("Delete product{}",id);
         Optional<Product> productOptional = productService.getProductById(id);
         return productOptional
