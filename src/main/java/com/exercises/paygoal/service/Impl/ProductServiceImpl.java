@@ -4,15 +4,15 @@ import com.exercises.paygoal.model.Product;
 import com.exercises.paygoal.repository.ProductRepository;
 import com.exercises.paygoal.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Set;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Service
 public class ProductServiceImpl implements ProductService {
     @Autowired
@@ -21,10 +21,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product save(Product product){
         Product existingProduct = productRepository.findProductByName(product.getName());
-        if (existingProduct != null){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "product name already exists");
-        }
-        return productRepository.save(product);
+        if (existingProduct == null)
+            productRepository.save(product);
+            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "product name already exists");   
+        return product;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
         updateProduct.setDescription(product.getDescription());
         updateProduct.setPrice(product.getPrice());
         updateProduct.setQuantity(product.getQuantity());
-        return productRepository.save(updateProduct);
+        productRepository.save(updateProduct);
         }
         return product;
     }
@@ -77,7 +77,19 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> saveList(List<Product> products) {
-        return productRepository.saveAll(products);
+        Set<String> productNames = new HashSet<>();
+        List<Product> savedProducts = products.stream()
+            .map(product -> {
+                Optional<Product> existingProduct = Optional.ofNullable(productRepository.findProductByName(product.getName()));
+                if (existingProduct.isPresent()) {
+                    return existingProduct.get();
+                } else {
+                    productNames.add(product.getName());
+                    return productRepository.save(product);
+                }
+            })
+            .collect(Collectors.toList());
+        return savedProducts;
     }
     
 }

@@ -3,9 +3,11 @@ package com.exercises.paygoal.controller;
 
 import com.exercises.paygoal.model.Product;
 import com.exercises.paygoal.service.ProductService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,24 +23,38 @@ public class ProductController {
     private final Logger LOGGER = LoggerFactory.getLogger(ProductController.class);
 
     @PostMapping("/save")
-    public ResponseEntity<Product> save(@RequestBody Product product){
+    public ResponseEntity<Object> save(@RequestBody Product product){
         LOGGER.info("Create new product{}",product);
-        return ResponseEntity.ok(productService.save(product));
+        Optional<Product> productOptional = productService.getProductByName(product.getName());
+        return productOptional
+        .map(existingProduct -> ResponseEntity.status(HttpStatus.CONFLICT).build())
+        .orElseGet(() -> ResponseEntity.ok(productService.save(product)));
     }
+
     @GetMapping()
     public ResponseEntity<List<Product>> list(){
         LOGGER.info("Get product list");
-        return ResponseEntity.ok(productService.findAll());
+        return Optional.ofNullable(productService.findAll())
+        .filter(list -> !list.isEmpty())
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
     }
+
     @GetMapping("/priceAsc")
     public ResponseEntity<List<Product>> listProductPriceAsc(){
         LOGGER.info("Get product list Order price Asc");
-        return ResponseEntity.ok(productService.getAllProductOrderByPriceAsc());
+        return Optional.ofNullable(productService.getAllProductOrderByPriceAsc())
+        .filter(list -> !list.isEmpty())
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
     }
     @GetMapping("/priceDesc")
     public ResponseEntity<List<Product>> listProductPriceDesc() {
         LOGGER.info("Get product list Order price Desc");
-        return ResponseEntity.ok(productService.getAllProductOrderByPriceDesc());
+        return Optional.ofNullable(productService.getAllProductOrderByPriceDesc())
+        .filter(list -> !list.isEmpty())
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}")
@@ -54,29 +70,32 @@ public class ProductController {
     public ResponseEntity<Product> update(@RequestBody Product product, @PathVariable UUID id) {
         LOGGER.info("Update product{}",product);
         Optional<Product> optionalProduct = productService.getProductById(id);
-        if(optionalProduct.isPresent()){
-            return ResponseEntity.ok(productService.update(id, product));
-        }else{
-            return ResponseEntity.notFound().build();
-             } 
+        return optionalProduct
+        .map(existingProduct -> {
+            productService.update(id, product);
+            return ResponseEntity.ok(existingProduct);
+        })
+        .orElseGet(() -> ResponseEntity.notFound().build());
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Product> delete(@PathVariable UUID id){
+    public ResponseEntity<Object> delete(@PathVariable UUID id){
         LOGGER.info("Delete product{}",id);
         Optional<Product> optionalProduct = productService.getProductById(id);
-        if(optionalProduct.isPresent()){
+        return optionalProduct
+        .map(existingProduct -> {
             productService.delete(id);
-            return ResponseEntity.noContent().build(); 
-        }else{
-            return ResponseEntity.notFound().build();
-             }
+            return ResponseEntity.noContent().build();
+        })
+        .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("save/list")
     public ResponseEntity<List<Product>> saveList(@RequestBody List<Product> products){
         LOGGER.info("Create new product List{}",products);
-        return ResponseEntity.ok(productService.saveList(products));
-
+        return Optional.ofNullable(productService.saveList(products))
+        .filter(list -> !list.isEmpty())
+        .map(ResponseEntity::ok)
+        .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 }
