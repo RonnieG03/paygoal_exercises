@@ -1,8 +1,11 @@
 package com.exercises.paygoal.service.Impl;
 
+import com.exercises.paygoal.controller.ProductController;
 import com.exercises.paygoal.model.Product;
 import com.exercises.paygoal.repository.ProductRepository;
 import com.exercises.paygoal.service.ProductService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,16 +18,18 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
+    private final Logger LOGGER = LoggerFactory.getLogger(ProductServiceImpl.class);
     @Autowired
     ProductRepository productRepository;
     
     @Override
     public Product save(Product product){
-        Product existingProduct = productRepository.findProductByName(product.getName());
-        if (existingProduct == null)
-            productRepository.save(product);
-            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "product name already exists");   
-        return product;
+        Optional<Product> optionalProduct = Optional.ofNullable(productRepository.findProductByName(product.getName()));
+        optionalProduct.ifPresent(existingProduct -> {
+            LOGGER.error("Product already exists:{}", existingProduct);
+            throw new IllegalArgumentException("Product already exists: " + existingProduct.getName());
+        });
+        return productRepository.save(product);
     }
 
     @Override
@@ -40,24 +45,22 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product update(UUID id, Product product) {
         Optional<Product> existingProduct = productRepository.findById(id);
-        if (existingProduct.isPresent()) {
-        Product updateProduct = existingProduct.get();
-        updateProduct.setName(product.getName());
-        updateProduct.setDescription(product.getDescription());
-        updateProduct.setPrice(product.getPrice());
-        updateProduct.setQuantity(product.getQuantity());
-        productRepository.save(updateProduct);
-        }
-        return product;
+        return existingProduct.map(updateProduct -> {
+                    updateProduct.setName(product.getName());
+                    updateProduct.setDescription(product.getDescription());
+                    updateProduct.setPrice(product.getPrice());
+                    updateProduct.setQuantity(product.getQuantity());
+                    return productRepository.save(updateProduct);
+                }).orElse(null);
     }
 
     @Override
     public void delete(UUID id) {
-        Optional<Product> optionalProduct = productRepository.findById(id);
-        Product product = optionalProduct.get();
-        if(optionalProduct.isPresent()){
-            productRepository.deleteById(product.getId());
-        }
+        Optional<Product> existingProduct = productRepository.findById(id);
+        existingProduct.map(delteteProduct -> {
+                    productRepository.deleteById(delteteProduct.getId());
+                    return null;
+                });
     }
 
     @Override
@@ -77,18 +80,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> saveList(List<Product> products) {
-        Set<String> productNames = new HashSet<>();
+        Set<String> existingProductNames = productRepository.findAll().stream()
+                .map(Product::getName)
+                .collect(Collectors.toSet());
+
         List<Product> savedProducts = products.stream()
-            .map(product -> {
-                Optional<Product> existingProduct = Optional.ofNullable(productRepository.findProductByName(product.getName()));
-                if (existingProduct.isPresent()) {
-                    return existingProduct.get();
-                } else {
-                    productNames.add(product.getName());
-                    return productRepository.save(product);
-                }
-            })
-            .collect(Collectors.toList());
+                .filter(product -> !existingProductNames.contains(product.getName()))
+                .map(productRepository::save)
+                .collect(Collectors.toList());
+
         return savedProducts;
     }
     

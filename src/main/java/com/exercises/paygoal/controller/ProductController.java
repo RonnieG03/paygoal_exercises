@@ -25,10 +25,7 @@ public class ProductController {
     @PostMapping("/save")
     public ResponseEntity<Object> save(@RequestBody Product product){
         LOGGER.info("Create new product{}",product);
-        Optional<Product> productOptional = productService.getProductByName(product.getName());
-        return productOptional
-        .map(existingProduct -> ResponseEntity.status(HttpStatus.CONFLICT).build())
-        .orElseGet(() -> ResponseEntity.ok(productService.save(product)));
+        return ResponseEntity.ok(productService.save(product));
     }
 
     @GetMapping()
