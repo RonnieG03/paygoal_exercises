@@ -3,11 +3,15 @@ package com.exercises.paygoal.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 
-import java.util.Optional;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
-
-import javax.persistence.*;
 
 @Entity
 @NoArgsConstructor
@@ -17,8 +21,12 @@ public class Product {
     @Id
     @GeneratedValue(generator = "uuid")
     private UUID id;
+    @NotEmpty
     private String name;
+    @NotEmpty
     private String description;
+    @NotNull
     private Double price;
+    @NotNull
     private int quantity;
 }

@@ -1,6 +1,5 @@
 package com.exercises.paygoal.service.Impl;
 
-import com.exercises.paygoal.controller.ProductController;
 import com.exercises.paygoal.model.Product;
 import com.exercises.paygoal.repository.ProductRepository;
 import com.exercises.paygoal.service.ProductService;
@@ -9,10 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -20,7 +18,7 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
     private final Logger LOGGER = LoggerFactory.getLogger(ProductServiceImpl.class);
     @Autowired
-    ProductRepository productRepository;
+    private ProductRepository productRepository;
     
     @Override
     public Product save(Product product){
