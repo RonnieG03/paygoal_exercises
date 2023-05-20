@@ -82,12 +82,10 @@ public class ProductServiceImpl implements ProductService {
                 .map(Product::getName)
                 .collect(Collectors.toSet());
 
-        List<Product> savedProducts = products.stream()
+        return products.stream()
                 .filter(product -> !existingProductNames.contains(product.getName()))
                 .map(productRepository::save)
                 .collect(Collectors.toList());
-
-        return savedProducts;
     }
     
 }
