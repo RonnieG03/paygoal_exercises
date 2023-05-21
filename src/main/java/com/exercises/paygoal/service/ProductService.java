@@ -10,7 +10,7 @@ public interface ProductService {
     Product save(Product product);
     Optional<Product> getProductById(UUID id);
     Optional<Product> getProductByName(String name);
-    Product update (UUID id, Product product);
+    Optional<Product> update (UUID id, Product product);
     void delete(UUID id);
     List<Product> findAll();
     List<Product> getAllProductOrderByPriceAsc();

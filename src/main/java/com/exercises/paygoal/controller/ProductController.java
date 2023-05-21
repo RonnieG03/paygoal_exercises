@@ -64,13 +64,10 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<Product> update(@RequestBody Product product, @PathVariable UUID id) {
         LOGGER.info("Update product{}",product);
-        Optional<Product> optionalProduct = productService.getProductById(id);
+        Optional<Product> optionalProduct = productService.update(id, product);
         return optionalProduct
-        .map(existingProduct -> {
-            productService.update(id, product);
-            return ResponseEntity.ok(existingProduct);
-        })
-        .orElseGet(() -> ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
     
     @DeleteMapping("/{id}")

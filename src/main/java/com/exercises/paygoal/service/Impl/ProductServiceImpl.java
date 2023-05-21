@@ -41,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product update(UUID id, Product product) {
+    public Optional<Product> update(UUID id, Product product) {
         Optional<Product> existingProduct = productRepository.findById(id);
         return existingProduct.map(updateProduct -> {
                     updateProduct.setName(product.getName());
@@ -49,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
                     updateProduct.setPrice(product.getPrice());
                     updateProduct.setQuantity(product.getQuantity());
                     return productRepository.save(updateProduct);
-                }).orElse(null);
+                });
     }
 
     @Override
