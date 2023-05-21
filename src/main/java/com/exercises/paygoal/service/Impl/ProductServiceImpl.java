@@ -22,7 +22,7 @@ public class ProductServiceImpl implements ProductService {
     
     @Override
     public Product save(Product product){
-        Optional<Product> optionalProduct = Optional.ofNullable(productRepository.findProductByName(product.getName()));
+        Optional<Product> optionalProduct = productRepository.findProductByName(product.getName());
         optionalProduct.ifPresent(existingProduct -> {
             LOGGER.error("Product already exists:{}", existingProduct);
             throw new IllegalArgumentException("Product already exists: " + existingProduct.getName());
@@ -37,7 +37,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Optional<Product> getProductByName(String name) {
-        return Optional.ofNullable(productRepository.findProductByName(name));
+        return productRepository.findProductByName(name);
     }
 
     @Override
