@@ -12,7 +12,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        LOGGER.error("UUID string too large");
+        LOGGER.error(ex.getMessage());
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
