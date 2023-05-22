@@ -21,13 +21,13 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
     
     @Override
-    public Product save(Product product){
-        Optional<Product> optionalProduct = productRepository.findProductByName(product.getName());
-        optionalProduct.ifPresent(existingProduct -> {
-            LOGGER.error("Product already exists:{}", existingProduct);
-            throw new IllegalArgumentException("Product already exists: " + existingProduct.getName());
-        });
-        return productRepository.save(product);
+    public Optional<Product> save(Product product){
+        return productRepository.findProductByName(product.getName())
+                .map(existingProduct -> {
+                    LOGGER.error("Product already exists:{}", existingProduct);
+                    return Optional.<Product>empty();
+                })
+                .orElseGet(() -> Optional.of(productRepository.save(product)));
     }
 
     @Override
@@ -53,12 +53,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void delete(UUID id) {
+    public Optional<Product> delete(UUID id) {
         Optional<Product> existingProduct = productRepository.findById(id);
         existingProduct.map(delteteProduct -> {
-                    productRepository.deleteById(delteteProduct.getId());
-                    return null;
+            productRepository.deleteById(delteteProduct.getId());
+                    return Optional.<Product>empty();
                 });
+        return existingProduct;
     }
 
     @Override

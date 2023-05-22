@@ -21,9 +21,12 @@ public class ProductController {
     private final Logger LOGGER = LoggerFactory.getLogger(ProductController.class);
 
     @PostMapping("/save")
-    public ResponseEntity<Object> save(@RequestBody Product product){
+    public ResponseEntity<Product> save(@RequestBody Product product){
         LOGGER.info("Create new product{}",product);
-        return ResponseEntity.ok(productService.save(product));
+        Optional<Product> saveProduct = productService.save(product);
+        return saveProduct
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.badRequest().build());
     }
 
     @GetMapping()
@@ -71,15 +74,12 @@ public class ProductController {
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable UUID id){
+    public ResponseEntity<Product> delete(@PathVariable UUID id){
         LOGGER.info("Delete product{}",id);
-        Optional<Product> optionalProduct = productService.getProductById(id);
-        return optionalProduct
-        .map(existingProduct -> {
-            productService.delete(id);
-            return ResponseEntity.noContent().build();
-        })
-        .orElseGet(() -> ResponseEntity.notFound().build());
+        Optional<Product> deleteProduct = productService.delete(id);
+        return deleteProduct
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("save/list")
